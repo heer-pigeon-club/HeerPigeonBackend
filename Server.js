@@ -13,7 +13,13 @@ const storage = multer.diskStorage({
   },
 });
 app.use("/uploads", express.static(path.join(__dirname, "public/uploads")));
-app.use(cors());
+app.use(
+  cors({
+    origin: "*", // In production, specify your Netlify URL instead of *
+    methods: ["GET", "POST", "PUT", "DELETE"],
+    allowedHeaders: ["Content-Type", "Authorization"],
+  }),
+);
 app.use(express.json());
 
 const fs = require("fs");
@@ -24,7 +30,7 @@ const upload = multer({
   fileFilter: (req, file, cb) => {
     const filetypes = /jpeg|jpg|png/;
     const extname = filetypes.test(
-      path.extname(file.originalname).toLowerCase()
+      path.extname(file.originalname).toLowerCase(),
     );
     const mimetype = filetypes.test(file.mimetype);
 
@@ -174,7 +180,7 @@ app.put("/api/tournaments/:id", async (req, res) => {
     const tournament = await Tournament.findByIdAndUpdate(
       req.params.id,
       req.body,
-      { new: true }
+      { new: true },
     );
     res.json(tournament);
   } catch (error) {
@@ -231,7 +237,7 @@ app.post("/api/participants", upload.single("image"), async (req, res) => {
     if (!isNaN(pigeons) && Number(pigeons) > 0) {
       pigeonArray = Array.from(
         { length: Number(pigeons) },
-        (_, i) => `Pigeon ${i + 1}`
+        (_, i) => `Pigeon ${i + 1}`,
       );
     } else {
       return res.status(400).json({ message: "Invalid pigeon count" });
@@ -283,7 +289,7 @@ app.put("/api/participants/:id", async (req, res) => {
     const participant = await Participant.findByIdAndUpdate(
       req.params.id,
       req.body,
-      { new: true }
+      { new: true },
     );
     res.json(participant);
   } catch (error) {
@@ -323,7 +329,7 @@ app.post("/api/participants/:id/flight", async (req, res) => {
     const flightsOnDate = participant.flightData.filter(
       (f) =>
         new Date(f.date).toISOString().split("T")[0] ===
-        selectedDate.toISOString().split("T")[0]
+        selectedDate.toISOString().split("T")[0],
     );
 
     if (flightsOnDate.length >= tournament.pigeons) {
@@ -337,7 +343,7 @@ app.post("/api/participants/:id/flight", async (req, res) => {
       const existingFlightIndex = participant.flightData.findIndex(
         (f) =>
           new Date(f.date).toISOString().split("T")[0] ===
-            selectedDate.toISOString().split("T")[0] && f.pigeon === pigeon
+            selectedDate.toISOString().split("T")[0] && f.pigeon === pigeon,
       );
 
       if (existingFlightIndex !== -1) {
@@ -378,7 +384,7 @@ app.post("/api/participants/:id/flight", async (req, res) => {
     const existingFlightIndex = participant.flightData.findIndex(
       (f) =>
         new Date(f.date).toISOString().split("T")[0] ===
-          selectedDate.toISOString().split("T")[0] && f.pigeon === pigeon
+          selectedDate.toISOString().split("T")[0] && f.pigeon === pigeon,
     );
 
     if (existingFlightIndex !== -1) {
@@ -492,7 +498,7 @@ app.get("/api/participants/:id/flights", async (req, res) => {
     console.log("Formatted date:", formattedDate);
 
     const flightRecords = participant.flightData.filter(
-      (f) => new Date(f.date).toISOString().split("T")[0] === formattedDate
+      (f) => new Date(f.date).toISOString().split("T")[0] === formattedDate,
     );
 
     console.log("Flights found:", flightRecords.length);
@@ -524,7 +530,7 @@ app.post("/api/participants/:id/flight/loft", async (req, res) => {
     const existingFlightIndex = participant.flightData.findIndex(
       (f) =>
         new Date(f.date).toISOString().split("T")[0] === formattedDate &&
-        f.pigeon === pigeon
+        f.pigeon === pigeon,
     );
 
     if (existingFlightIndex !== -1) {
