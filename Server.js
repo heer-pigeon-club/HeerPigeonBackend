@@ -116,9 +116,11 @@ app.delete("/api/news/:id", async (req, res) => {
 const tournamentSchema = new mongoose.Schema({
   name: String,
   startDate: String,
+  startTime: String, // ⬅️ Added startTime field
   endDate: String,
   pigeons: Number,
 });
+
 const Tournament = mongoose.model("Tournament", tournamentSchema);
 
 // 📌 Create a tournament
