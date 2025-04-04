@@ -433,6 +433,49 @@ app.post("/api/participants/:id/flight", async (req, res) => {
     res.status(500).json({ message: "Error saving flight data" });
   }
 });
+//give an update function
+app.put("/api/participants/:id/flight", async (req, res) => {
+  try {
+    const { id } = req.params;
+    const { date, pigeon, startTime, endTime } = req.body;
+
+    const participant = await Participant.findById(id);
+    if (!participant)
+      return res.status(404).json({ message: "Participant not found" });
+
+    const selectedDate = new Date(date);
+
+    // Find the flight record where both date and pigeon match
+    const flightRecord = participant.flightData.find((f) => {
+      return (
+        new Date(f.date).toISOString().split("T")[0] ===
+          selectedDate.toISOString().split("T")[0] && f.pigeon === pigeon
+      );
+    });
+
+    if (!flightRecord) {
+      return res.status(404).json({ message: "Flight record not found" });
+    }
+
+    // Update the flight record
+    flightRecord.startTime = startTime;
+    flightRecord.endTime = endTime;
+
+    // Calculate flight time in seconds
+    const start = new Date(`${date}T${startTime}`);
+    const end = new Date(`${date}T${endTime}`);
+    flightRecord.flightTime = Math.abs(end - start) / 1000; // Convert to seconds
+
+    await participant.save();
+    res.json({
+      message: "Flight data updated successfully",
+      flightData: participant.flightData,
+    });
+  } catch (error) {
+    console.error("Error updating flight data:", error);
+    res.status(500).json({ message: "Error updating flight data" });
+  }
+});
 
 app.get("/api/participants/:id/flight", async (req, res) => {
   try {
