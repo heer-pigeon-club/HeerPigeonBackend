@@ -133,22 +133,6 @@ const tournamentSchema = new mongoose.Schema({
 
 const Tournament = mongoose.model("Tournament", tournamentSchema);
 
-app.put("/api/tournaments/:id/pin", async (req, res) => {
-  try {
-    const { id } = req.params;
-
-    // Unpin all tournaments first
-    await Tournament.updateMany({}, { pinned: false });
-
-    // Pin the selected tournament
-    await Tournament.findByIdAndUpdate(id, { pinned: true });
-
-    res.json({ message: "Tournament pinned successfully!" });
-  } catch (error) {
-    res.status(500).json({ error: "Error pinning tournament" });
-  }
-});
-
 // 📌 Create a tournament
 app.post("/api/tournaments", async (req, res) => {
   try {
@@ -226,6 +210,22 @@ app.get("/api/tournaments/:id", async (req, res) => {
     res.status(500).json({ message: "Error fetching tournament" });
   }
 });
+app.put("/api/tournaments/:id/pin", async (req, res) => {
+  try {
+    const { id } = req.params;
+
+    // Unpin all tournaments first
+    await Tournament.updateMany({}, { pinned: false });
+
+    // Pin the selected tournament
+    await Tournament.findByIdAndUpdate(id, { pinned: true });
+
+    res.json({ message: "Tournament pinned successfully!" });
+  } catch (error) {
+    res.status(500).json({ error: "Error pinning tournament" });
+  }
+});
+
 const participantSchema = new mongoose.Schema({
   name: String,
   address: String,
