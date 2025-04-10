@@ -531,42 +531,19 @@ app.delete("/api/participants/:id", async (req, res) => {
 app.get("/api/participants/:id/flights", async (req, res) => {
   try {
     const { id } = req.params;
-    const { date } = req.query;
-
-    console.log("Fetching flights for participant ID:", id);
-    console.log("Requested date:", date);
 
     const participant = await Participant.findById(id);
 
     if (!participant) {
-      console.log("Participant not found!");
       return res.status(404).json({ message: "Participant not found" });
     }
 
-    console.log("Participant found:", participant.name);
-
     // Ensure flightData exists and is an array
     if (!participant.flightData || !Array.isArray(participant.flightData)) {
-      console.log("No flight data available for this participant.");
-      return res.json({ message: "No flight data found", flightData: [] });
+      return res.json({ flightData: [] });
     }
 
-    if (!date) {
-      console.log("No specific date provided, returning all flight data.");
-      return res.json({ flightData: participant.flightData });
-    }
-
-    // Convert date to ISO format (YYYY-MM-DD) for comparison
-    const formattedDate = new Date(date).toISOString().split("T")[0];
-    console.log("Formatted date:", formattedDate);
-
-    const flightRecords = participant.flightData.filter(
-      (f) => new Date(f.date).toISOString().split("T")[0] === formattedDate
-    );
-
-    console.log("Flights found:", flightRecords.length);
-
-    res.json({ flightData: flightRecords });
+    res.json({ flightData: participant.flightData });
   } catch (error) {
     console.error("Error fetching flight data:", error);
     res.status(500).json({ message: "Error fetching flight data" });
